@@ -1,0 +1,2276 @@
+{
+  "x-generator": "NSwag v14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Aquifer API Documentation",
+    "description": "All endpoints require an API key in the `api-key` header.<br><br>\n\nThe following videos are available for anyone new to working with APIs:\n\n<a href=\"https://cdn.aquifer.bible/training/aquifer-api-documentation.mp4\" target=\"_blank\">Understanding the documentation</a>\n\n<a href=\"https://cdn.aquifer.bible/training/aquifer-api-postman.mp4\" target=\"_blank\">Making requests with Postman</a>\n\n<a href=\"https://cdn.aquifer.bible/training/aquifer-api-files-demo-csharp.mp4\" target=\"_blank\">Downloading resources to the file system with C#</a>\n\n<a href=\"https://cdn.aquifer.bible/training/api-and-flat-files.mp4\" target=\"_blank\">Why use a web API instead of flat files?</a>\n\n<br><br>\nExample applications using the Aquifer API can be found in the <a href=\"https://github.com/BiblioNexusStudio/aquifer-api-samples\" target=\"_blank\">samples repository on GitHub</a>.\n\n<a href=\"https://cdn.aquifer.bible/training/webpage-search-with-react-demo.mp4\" target=\"_blank\">React Sample Application Demo</a>",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.aquifer.bible"
+    }
+  ],
+  "paths": {
+    "/resources/updates": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Get resource ids that are new or updated since the given UTC timestamp.",
+        "description": "For a given UTC timestamp, get a list of resource ids that are new or have been updated since the provided timestamp. This is intended for users who are storing Aquifer data locally and want to fetch new content.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesUpdatesListEndpoint",
+        "parameters": [
+          {
+            "name": "StartTimestamp",
+            "in": "query",
+            "description": "UTC timestamp (e.g. 07/20/2024) representing the starting time of a range in which to look for new updates. This is required when not\npassing the deprecated `Timestamp` property.\n            ",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          },
+          {
+            "name": "EndTimestamp",
+            "in": "query",
+            "description": "UTC timestamp (e.g. 07/20/2024) representing the ending time of a range in which to look for new updates. If no value is provided it\nwill default to UtcNow.\n            ",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          },
+          {
+            "name": "LanguageId",
+            "in": "query",
+            "description": "Optional LanguageId to search on. If none is provided, updates for all languages will be returned.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "LanguageCode",
+            "in": "query",
+            "description": "Optional ISO 639-3 code that is 3 characters in length (e.g. \"eng\").\n            ",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Limit",
+            "in": "query",
+            "description": "The number of results to return. Max is 1000.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1000
+            }
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "description": "Records to skip if paging through results.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "ResourceCollectionCode",
+            "in": "query",
+            "description": "Optional resource collection code to search for. Search by code retrieved from /resources/collections endpoint such\nas \"TyndaleBibleDictionary\".\n            ",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Timestamp",
+            "in": "query",
+            "description": "WARNING: DEPRECATED!  Use `StartTimestamp` instead.  If `StartTimestamp` is provided then this value will be ignored.\n            ",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/types": {
+      "get": {
+        "tags": [
+          "Resources/Types"
+        ],
+        "summary": "Get a list of available resource types and collections.",
+        "description": "Get a list of resource types that are available. Within each resource type will be a list of resource collections\nthat belong to that resource type. For example, Dictionary is a resource type, and \"Bible Dictionary (Tyndale)\"\nis a collection of resources within that type. The resource type and collection code can be used in other queries.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesTypesListEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response2"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/search": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Search resources by keyword query, passage, resource type or collection code, or a combination of the above.",
+        "description": "For a given query, language, and content type, search for matching resources. Can also search by passage, resource type, or resource collection code.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesSearchGetResourcesEndpoint",
+        "parameters": [
+          {
+            "name": "Query",
+            "in": "query",
+            "description": "The keyword to search on. Currently only searches against content names (not inside content).\nNon-English names are supported. Must be at least 3 characters in length. Optional if a bookCode or a resource type or collection code is provided.\n            ",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "BookCode",
+            "in": "query",
+            "description": "Book code based off USFM book identifier (e.g. GEN, EXO, etc.). Can get a list of available books and identifiers\nfrom the /bibles/books endpoint. Use this by itself to search across an entire book. Required if no query parameter and no resource type or collection code are provided.\n            ",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "StartChapter",
+            "in": "query",
+            "description": "Optional start chapter to search from. If included, must also provide an end chapter. Required with verses.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "EndChapter",
+            "in": "query",
+            "description": "Optional end chapter to search from. Required with start chapter and verses.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "StartVerse",
+            "in": "query",
+            "description": "Optional start verse to search from. If included, must also provide an end verse and chapters.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "EndVerse",
+            "in": "query",
+            "description": "Optional end verse to search from. Required with start verse.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "LanguageId",
+            "in": "query",
+            "description": "Optional language id internal to Aquifer. If not specified, language code is required.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "LanguageCode",
+            "in": "query",
+            "description": "Optional ISO 639-3 code that is 3 characters in length (e.g. \"eng\"). If not specified, language id is required.\n            ",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "ResourceType",
+            "in": "query",
+            "description": "The type of resource to search for, such as \"Dictionary\". If none specified, will default to None.\nIf sending resourceType, do not send resourceCollectionCode.\nA resource type or collection code is required if no book code and no query are provided.\n            ",
+            "schema": {
+              "default": 0,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ResourceType"
+                }
+              ]
+            }
+          },
+          {
+            "name": "ResourceCollectionCode",
+            "in": "query",
+            "description": "Optional resource collection code to search for. Search by code retrieved from /resources/types endpoint such as\n\"TyndaleBibleDictionary\". If sending resourceCollectionCode, do not send resourceType.\nA resource type or collection code is required if no book code and no query are provided.\n            ",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Limit",
+            "in": "query",
+            "description": "The number of results to return. Max is 100.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "description": "Records to skip if paging through results.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response3"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/{ContentId}": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Get specific resource information.",
+        "description": "For a given resource id, return the data for that resource. This can be text content as well as CDN links for image, audio, and video media types.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesGetEndpoint",
+        "parameters": [
+          {
+            "name": "ContentId",
+            "in": "path",
+            "required": true,
+            "description": "The resource id to return content for. This is included at the end of the path.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ContentTextType",
+            "in": "query",
+            "description": "The type of text content to return in the `content` property of the response (JSON is always sent back for the response as a\nwhole by default). This parameter is optional and defaults to `None`.\n\nIf `None` is passed then `Json` will be returned.  `Markdown` and 'Html' can also be requested.\n\nNote that this will be ignored for non-text resources. Content such as images will always return as JSON.\n            ",
+            "schema": {
+              "default": 0,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/TiptapContentType"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response4"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/{ContentId}/by-language/{LanguageCode}": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Get specific resource information by a different language.",
+        "description": "For a given resource id, return the data for that resource in the alternative language.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesGetByLanguageEndpoint",
+        "parameters": [
+          {
+            "name": "ContentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "LanguageCode",
+            "in": "path",
+            "required": true,
+            "description": "Language code (e.g. eng) that the given content id should be sent back in. For example,\nif you have the English content id for a specific item, and you want to get the French version, pass \"fra\" as the value.\nIf no version exists in the requested language, a 404 will be returned.\n            ",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ContentTextType",
+            "in": "query",
+            "schema": {
+              "default": 0,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/TiptapContentType"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response4"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/{ContentId}/available-languages": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "For a given resource content id, see in what other languages it is available.",
+        "description": "For a given resource content id, return a list of all other languages that are available for this resource.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesGetAvailableLanguagesEndpoint",
+        "parameters": [
+          {
+            "name": "ContentId",
+            "in": "path",
+            "required": true,
+            "description": "The resource content id to check additional languages for\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response5"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/{ContentId}/associations": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Get resource content associations.",
+        "description": "For a given resource id, return the associations for that resource in its given language. Resource associations are language dependent. In general, all resource associations will be available in English.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesGetAssociationsEndpoint",
+        "parameters": [
+          {
+            "name": "ContentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response6"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/collections": {
+      "get": {
+        "tags": [
+          "Resources/Collections"
+        ],
+        "summary": "Get a list of resource collections.",
+        "description": "Returns summary data for all resource collections, optionally filtering by resource type. Note that additional collection information can be retrieved via the individual GET route.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesCollectionsListEndpoint",
+        "parameters": [
+          {
+            "name": "ResourceType",
+            "in": "query",
+            "description": "The optional type of resource to search for, such as \"Dictionary\". If none specified, will default to None.",
+            "schema": {
+              "default": 0,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ResourceType"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Limit",
+            "in": "query",
+            "description": "The number of results to return.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "description": "Records to skip if paging through results.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response7"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/collections/{code}": {
+      "get": {
+        "tags": [
+          "Resources/Collections"
+        ],
+        "summary": "Get a resource collection with language localization data for the given collection code.",
+        "description": "Returns the resource collection matching the collection code including the count of resource items in each available language.",
+        "operationId": "AquiferPublicAPIEndpointsResourcesCollectionsGetEndpoint",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The collection code of the collection to retrieve.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "LanguageIds",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "description": "Optional languages to search on by internal Aquifer language id. If no languages are specified then all languages will be returned. Only one of language ids or codes may be provided.",
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          {
+            "name": "LanguageCodes",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "description": "Optional languages to search on by ISO 639-3 code that is 3 characters in length (e.g. \"eng\"). Only one of language ids or codes may be provided.",
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response8"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/languages": {
+      "get": {
+        "tags": [
+          "Languages"
+        ],
+        "summary": "Return language list.",
+        "description": "Return a list of languages that can have associated resources in the Aquifer.",
+        "operationId": "AquiferPublicAPIEndpointsLanguagesListEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response9"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/languages/available-resources": {
+      "get": {
+        "tags": [
+          "Languages"
+        ],
+        "summary": "Get count of resource types per language.",
+        "description": "For a given range, get a count of resources available per language and type.",
+        "operationId": "AquiferPublicAPIEndpointsLanguagesAvailableResourcesListEndpoint",
+        "parameters": [
+          {
+            "name": "BookCode",
+            "in": "query",
+            "required": true,
+            "description": "Required book code based off USFM book identifier (e.g. GEN, EXO, etc.). Can get a list of available books and identifiers\nfrom the /bibles/books endpoint. Use this by itself to search across an entire book.\n            ",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "StartChapter",
+            "in": "query",
+            "description": "Optional start chapter to search from. If included, must also provide an end chapter. Required with verses.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "EndChapter",
+            "in": "query",
+            "description": "Optional end chapter to search from. Required with start chapter and verses.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "StartVerse",
+            "in": "query",
+            "description": "Optional start verse to search from. If included, must also provide an end verse and chapters.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "EndVerse",
+            "in": "query",
+            "description": "Optional end verse to search from. Required with start verse.\n            ",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "LanguageCodes",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "description": "Optional list of language codes to filter the results to.\nExample: `languageCodes=eng&languageCodes=fra`\n            ",
+            "schema": {
+              "type": "array",
+              "default": "",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response10"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bibles/{BibleId}/texts": {
+      "get": {
+        "tags": [
+          "Bibles"
+        ],
+        "summary": "Get the Bible text contained within a book of the Bible.",
+        "description": "For a given Bible and book of the Bible, returns the Bible text (and optional audio information if available) for all verses within the chapter and verse parameters.",
+        "operationId": "AquiferPublicAPIEndpointsBiblesTextsGetEndpoint",
+        "parameters": [
+          {
+            "name": "BibleId",
+            "in": "path",
+            "required": true,
+            "description": "The id of the Bible for which to return text.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "BookCode",
+            "in": "query",
+            "required": true,
+            "description": "Book code based off USFM book identifier (e.g. GEN, EXO, etc.). Can get a list of available books and identifiers\nfrom the /bibles/books endpoint. This parameter is required.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "StartChapter",
+            "in": "query",
+            "description": "Optional start chapter in the book.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "StartVerse",
+            "in": "query",
+            "description": "Optional start verse in the start chapter.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "EndChapter",
+            "in": "query",
+            "description": "Optional end chapter in the book.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 999
+            }
+          },
+          {
+            "name": "EndVerse",
+            "in": "query",
+            "description": "Optional end verse in the end chapter.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 999
+            }
+          },
+          {
+            "name": "ShouldReturnAudioData",
+            "in": "query",
+            "description": "Optional. If true then any available audio information for each chapter and verse will be included in the response.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response11"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bibles": {
+      "get": {
+        "tags": [
+          "Bibles"
+        ],
+        "summary": "Get a list of Bibles.",
+        "description": "For a given optional language id, returns the Bibles in the system including language information, abbreviation codes, whether or not the Bible supports a Greek alignment, and license information.",
+        "operationId": "AquiferPublicAPIEndpointsBiblesListEndpoint",
+        "parameters": [
+          {
+            "name": "LanguageId",
+            "in": "query",
+            "description": "Optional language to search on by internal Aquifer language id. If no language is specified then Bibles for all languages will be returned. Only one of language id or code may be provided.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            }
+          },
+          {
+            "name": "LanguageCode",
+            "in": "query",
+            "description": "Optional language to search on by ISO 639-3 code that is 3 characters in length (e.g. \"eng\"). If no language value is specified then Bibles for all languages will be returned. Only one of language id or code may be provided.",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "IsLanguageDefault",
+            "in": "query",
+            "description": "If specified then only language default Bibles (for true) or language non-default Bibles (for false) will be returned. If no value is provided then all Bibles will be returned.",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
+            "name": "HasAudio",
+            "in": "query",
+            "description": "If specified then only Bibles that have audio files (for true) or that don't have audio files (for false) will be returned. If no value is provided then all Bibles will be returned.",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
+            "name": "HasGreekAlignment",
+            "in": "query",
+            "description": "If specified then only Bibles that have Greek alignment (for true) or that don't have a Greek alignment (for false) will be returned. If no value is provided then all Bibles will be returned.",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response12"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bibles/books": {
+      "get": {
+        "tags": [
+          "Bibles"
+        ],
+        "summary": "Get a list of Bible books.",
+        "description": "Returns the list of Bible books in the system and their corresponding book number to be used in other calls.",
+        "operationId": "AquiferPublicAPIEndpointsBiblesBooksListEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response13"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bibles/{BibleId}/alignments/greek": {
+      "get": {
+        "tags": [
+          "Bibles"
+        ],
+        "summary": "Get a Bible's Greek alignment information.",
+        "description": "For a given Bible and book of the Bible, returns the Bible's text along with associated Greek alignment information and Greek sense data for each verse, similar to a reverse interlinear Bible. Data is returned for all verses within the chapter and verse parameters.",
+        "operationId": "AquiferPublicAPIEndpointsBiblesAlignmentsGreekEndpoint",
+        "parameters": [
+          {
+            "name": "BibleId",
+            "in": "path",
+            "required": true,
+            "description": "The id of the Bible for which to return text.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "BookCode",
+            "in": "query",
+            "required": true,
+            "description": "Book code based off USFM book identifier (e.g. GEN, EXO, etc.). Can get a list of available books and identifiers\nfrom the /bibles/books endpoint. This parameter is required.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "StartChapter",
+            "in": "query",
+            "description": "Optional start chapter in the book.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "StartVerse",
+            "in": "query",
+            "description": "Optional start verse in the start chapter.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "StartWord",
+            "in": "query",
+            "description": "Optional start word in the start verse.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "EndChapter",
+            "in": "query",
+            "description": "Optional end chapter in the book.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 999
+            }
+          },
+          {
+            "name": "EndVerse",
+            "in": "query",
+            "description": "Optional end verse in the end chapter.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 999
+            }
+          },
+          {
+            "name": "EndWord",
+            "in": "query",
+            "description": "Optional end word in the end verse.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 999
+            }
+          },
+          {
+            "name": "ShouldReturnSenseData",
+            "in": "query",
+            "description": "Optional. If true then any available Greek word sense information for each Greek word (definition and glosses) will be included in the response.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response14"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/cs": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Download C# client.",
+        "description": "Downloads a zip file containing a generated C# client to use when calling this API.\nThe generated source code uses [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/) in order to make web requests. You will need to install the following dependencies:\n  * `dotnet add package Microsoft.Kiota.Bundle --version 1.15.2` (or newer version)\n\nThe following is a full example of a `Program.cs` file using the generated client and injecting an API key header.\nThe example code assumes that the downloaded client code files are contained in the same solution in the `BiblioNexus.Aquifer.API.Client` namespace.\n```\nusing System.Net.Http;\nusing BiblioNexus.Aquifer.API.Client;\nusing Microsoft.Kiota.Abstractions.Authentication;\nusing Microsoft.Kiota.Http.HttpClientLibrary;\n\n// see https://learn.microsoft.com/en-us/openapi/kiota/middleware?tabs=csharp\nvar httpMessageHandler = KiotaClientFactory.ChainHandlersCollectionAndGetFirstLink(\n    KiotaClientFactory.GetDefaultHttpMessageHandler(),\n    [..KiotaClientFactory.CreateDefaultHandlers(), new SetApiKeyHeaderRequestHandler(\"your-api-key-goes-here\")]);\nvar adapter = new HttpClientRequestAdapter(\n    new AnonymousAuthenticationProvider(),\n    httpClient: new HttpClient(httpMessageHandler!))\n{\n    BaseUrl = \"https://api.aquifer.bible\",\n};\n\nvar aquiferClient = new AquiferClient(adapter);\n\ntry\n{\n    // GET /bibles/books\n    var bibleBooks = await aquiferClient.Bibles.Books.GetAsync();\n    \n    Console.WriteLine($\"Retrieved {bibleBooks?.Count} Bible books.\");\n    \n    // GET /bibles\n    var englishDefaultBible = (await aquiferClient.Bibles.GetAsync(b =>\n    {\n        b.QueryParameters.LanguageCode = \"eng\";\n        b.QueryParameters.IsLanguageDefault = true;\n    }))\n    ?.SingleOrDefault();\n    \n    Console.WriteLine($\"The English language default Bible is \\\"{englishDefaultBible?.Name}\\\" ({englishDefaultBible?.Abbreviation}).\");\n    \n    // GET /resources/{id}\n    var resource = await aquiferClient.Resources[1717].GetAsync(b =>\n    {\n        b.QueryParameters.ContentTextType = \"html\";\n    });\n    \n    Console.WriteLine($\"\"\"\n        Retrieved Resource:\n          - ID: {resource!.Id}\n          - Name: {resource.Name}\n          - Content: {await GetUntypedNodeOriginalJsonAsync(resource.Content)}\n        \"\"\");\n}\ncatch (ErrorResponse ex)\n{\n    Console.WriteLine($\"Error: {ex.Message}\");\n    Console.WriteLine($\"Status Code: {ex.ResponseStatusCode}\");\n    if (ex.Errors != null)\n    {\n        foreach (var additionalData in ex.Errors.AdditionalData)\n        {\n            Console.WriteLine($\"\\\"{additionalData.Key}\\\": \\\"{await GetAdditionalDataValueAsStringAsync(additionalData.Value)}\\\"\");\n        }\n    }\n    Console.WriteLine(ex.StackTrace);\n}\ncatch (Exception ex)\n{\n    Console.WriteLine($\"Error: {ex.Message}\");\n    Console.WriteLine(ex.StackTrace);\n}\n\nprivate static async Task<string?> GetAdditionalDataValueAsStringAsync(object value)\n{\n    if (value is UntypedNode untypedNode)\n    {\n        return await GetUntypedNodeOriginalJsonAsync(untypedNode);\n    }\n    \n    // TODO use your JSON serialization strategy of choice to render a better string\n    return value.ToString();\n}\n\nprivate static async Task<string> GetUntypedNodeOriginalJsonAsync(UntypedNode untypedNode)\n{\n    return await KiotaJsonSerializer.SerializeAsStringAsync(untypedNode);\n}\n```\nThe following class is also used above in order to inject the API Key into every request header:\n```\npublic sealed class SetApiKeyHeaderRequestHandler(string _apiKey) : DelegatingHandler\n{\n    protected override async Task<HttpResponseMessage> SendAsync(\n        HttpRequestMessage request, CancellationToken cancellationToken)\n    {\n        request.Headers.Add(\"api-key\", _apiKey);\n        return await base.SendAsync(request, cancellationToken);\n    }\n}\n```\nSee also [this C# Kiota example](https://github.com/microsoft/kiota-samples/blob/main/get-started/quickstart/dotnet/src/Program.cs) for how to use a generated Kiota client.",
+        "operationId": "AquiferPublicAPIEndpointsClientsGetCsEndpoint",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/clients/java": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Download Java client.",
+        "description": "Downloads a zip file containing a generated Java client to use when calling this API.\nThe generated source code uses [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/) in order to make web requests. You will need to install the following dependencies:\n  * `com.microsoft.kiota:microsoft-kiota-bundle:1.8.0` (or newer version)\n  * `jakarta.annotation:jakarta.annotation-api:2.1.1` (or newer version)\n\nSee also [this Java Kiota example](https://github.com/microsoft/kiota-samples/blob/main/get-started/quickstart/java/app/src/main/java/kiotaposts/App.java) for how to use a generated Kiota client.",
+        "operationId": "AquiferPublicAPIEndpointsClientsGetJavaEndpoint",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/clients/py": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Download Python client.",
+        "description": "Downloads a zip file containing a generated Python client to use when calling this API.\nThe generated source code uses [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/) in order to make web requests. You will need to install the following dependencies:\n  * `pip install microsoft-kiota-bundle==1.6.6` (or newer version)\n\nSee also [this Python Kiota example](https://github.com/microsoft/kiota-samples/blob/main/get-started/quickstart/python/main.py) for how to use a generated Kiota client.",
+        "operationId": "AquiferPublicAPIEndpointsClientsGetPyEndpoint",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/clients/ts": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Download TypeScript client.",
+        "description": "Downloads a zip file containing a generated TypeScript client to use when calling this API.\nThe generated source code uses [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/) in order to make web requests. You will need to install the following dependencies:\n  * `npm install @microsoft/kiota-bundle@1.0.0-preview.77 -SE` (or newer version)\n\nThe following is a full example of an `index.tx` file using the generated client and injecting an API key header.\nThe example code assumes that the downloaded client code files are unzipped into a subdirectory named `client`.\n```\nimport { AnonymousAuthenticationProvider, SerializationWriter, serializeToJsonAsString, serializeUntypedNode, UntypedNode } from \"@microsoft/kiota-abstractions\";\nimport { FetchRequestAdapter, KiotaClientFactory, MiddlewareFactory } from \"@microsoft/kiota-http-fetchlibrary\";\nimport { createAquiferClient } from \"./client/aquiferClient.js\";\nimport { SetApiKeyHeaderRequestHandler } from \"./SetApiKeyHeaderRequestHandler.js\";\n\n// see https://learn.microsoft.com/en-us/openapi/kiota/middleware?tabs=typescript\nconst handlers = MiddlewareFactory.getDefaultMiddlewares();\nhandlers.unshift(new SetApiKeyHeaderRequestHandler(\"your-api-key-goes-here\"));\nconst httpClient = KiotaClientFactory.create(undefined, handlers);\nconst adapter = new FetchRequestAdapter(new AnonymousAuthenticationProvider(), undefined, undefined, httpClient);\nadapter.baseUrl = \"https://api.aquifer.bible\";\n\nconst client = createAquiferClient(adapter);\n\nasync function main(): Promise<void> {\n  try {\n    // GET /bibles/books\n    const bibleBooks = await client.bibles.books.get();\n    console.log(`Retrieved ${bibleBooks?.length} Bible books.`);\n\n    // GET /bibles\n    const getBiblesResult = await client.bibles.get({\n        queryParameters: {\n            languageCode: \"eng\",\n            isLanguageDefault: true,\n        },\n    });\n    const englishLanguageDefaultBible = getBiblesResult?.[0];\n    console.log(`The English language default Bible is \"${englishLanguageDefaultBible?.name}\" (${englishLanguageDefaultBible?.abbreviation}).`);\n\n    // GET /resources/{id}\n    const resource = await client.resources.byContentId(1717).get({\n        queryParameters: {\n            contentTextType: \"html\",\n        },\n    });\n    console.log(`Retrieved Resource:\\n  - ID: ${resource?.id}\\n  - Name: ${resource?.name}\\n  - Content: ${getUntypedNodeOriginalJson(resource?.content!)}.`);\n\n  } catch (error) {\n    console.log(\"Error:\");\n    console.log(error);\n  }\n}\n\nfunction getUntypedNodeOriginalJson(untypedNode: UntypedNode): string {\n    const serializeUntypedNodeToJson = (writer: SerializationWriter, value?: Partial<UntypedNode> | null): void => {\n        serializeUntypedNode(writer, value!);\n    }\n    return serializeToJsonAsString(untypedNode, serializeUntypedNodeToJson);\n}\n\nmain();\n```\nThe following class is also used above in order to inject the API Key into every request header:\n```\nimport { RequestOption } from \"@microsoft/kiota-abstractions\";\nimport { FetchRequestInit, Middleware } from \"@microsoft/kiota-http-fetchlibrary\";\n\nexport class SetApiKeyHeaderRequestHandler implements Middleware {\n    public constructor(private readonly _apiKey: string) {}\n\n    /** @inheritdoc */\n    next: Middleware | undefined;\n\n    private setRequestHeader(options: FetchRequestInit | undefined, key: string, value: string): void {\n        if (options) {\n            if (!options.headers) {\n                options.headers = {};\n            }\n            options.headers[key] = value;\n        }\n    };\n\n    /** @inheritdoc */\n    public async execute(url: string, requestInit: RequestInit, requestOptions?: Record<string, RequestOption>): Promise<Response> {\n        this.setRequestHeader(requestInit as FetchRequestInit, \"api-key\", this._apiKey);\n\n        const response = await this.next?.execute(url, requestInit, requestOptions);\n        if (!response) {\n            throw new Error(\"No response returned by the next middleware.\");\n        }\n        return response;\n    }\n}\n```\nSee also [this TypeScript Kiota example](https://github.com/microsoft/kiota-samples/blob/main/get-started/quickstart/typescript/index.ts) for how to use a generated Kiota client.",
+        "operationId": "AquiferPublicAPIEndpointsClientsGetTsEndpoint",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ReturnedItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "TotalItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Offset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseContent"
+            }
+          }
+        }
+      },
+      "ResponseContent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "UpdateType": {
+            "$ref": "#/components/schemas/ResponseContentUpdateType"
+          },
+          "LanguageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "LanguageCode": {
+            "type": "string"
+          },
+          "ResourceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResponseContentUpdateType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "New",
+          "Updated"
+        ],
+        "enum": [
+          "New",
+          "Updated"
+        ]
+      },
+      "Request": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "StatusCode": {
+            "type": "integer",
+            "format": "int32",
+            "default": 400
+          },
+          "Message": {
+            "type": "string",
+            "default": "One or more errors occurred!"
+          },
+          "Errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Response2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string"
+          },
+          "Collections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvailableResourceCollection"
+            }
+          }
+        }
+      },
+      "AvailableResourceCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Code": {
+            "type": "string"
+          },
+          "Title": {
+            "type": "string"
+          },
+          "LicenseInformation": {
+            "$ref": "#/components/schemas/ResourceLicenseInfo"
+          }
+        }
+      },
+      "ResourceLicenseInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Title": {
+            "type": "string"
+          },
+          "Copyright": {
+            "$ref": "#/components/schemas/ResourceLicenseInfo_LicenseCopyright"
+          },
+          "Licenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceLicenseInfo_LicenseDetails"
+            }
+          },
+          "ShowAdaptationNoticeForEnglish": {
+            "type": "boolean"
+          },
+          "ShowAdaptationNoticeForNonEnglish": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResourceLicenseInfo_LicenseCopyright": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Dates": {
+            "type": "string",
+            "nullable": true
+          },
+          "Holder": {
+            "$ref": "#/components/schemas/ResourceLicenseInfo_LicenseCopyrightHolder"
+          }
+        }
+      },
+      "ResourceLicenseInfo_LicenseCopyrightHolder": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Url": {
+            "type": "string"
+          }
+        }
+      },
+      "ResourceLicenseInfo_LicenseDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Eng": {
+            "$ref": "#/components/schemas/ResourceLicenseInfo_LicenseData"
+          }
+        }
+      },
+      "ResourceLicenseInfo_LicenseData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Url": {
+            "type": "string"
+          }
+        }
+      },
+      "Response3": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "TotalItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ReturnedItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Offset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseContent2"
+            }
+          }
+        }
+      },
+      "ResponseContent2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "LocalizedName": {
+            "type": "string"
+          },
+          "MediaType": {
+            "$ref": "#/components/schemas/ResourceContentMediaType"
+          },
+          "LanguageCode": {
+            "type": "string"
+          },
+          "Grouping": {
+            "$ref": "#/components/schemas/ResourceTypeMetadata"
+          }
+        }
+      },
+      "ResourceContentMediaType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "Text",
+          "Audio",
+          "Video",
+          "Image"
+        ],
+        "enum": [
+          "None",
+          "Text",
+          "Audio",
+          "Video",
+          "Image"
+        ]
+      },
+      "ResourceTypeMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "$ref": "#/components/schemas/ResourceType"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "CollectionTitle": {
+            "type": "string"
+          },
+          "CollectionCode": {
+            "type": "string"
+          }
+        }
+      },
+      "ResourceType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "Guide",
+          "Dictionary",
+          "StudyNotes",
+          "Images",
+          "Videos"
+        ],
+        "enum": [
+          "None",
+          "Guide",
+          "Dictionary",
+          "StudyNotes",
+          "Images",
+          "Videos"
+        ]
+      },
+      "Request2": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response4": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ReferenceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "LocalizedName": {
+            "type": "string"
+          },
+          "Content": {},
+          "Grouping": {
+            "$ref": "#/components/schemas/ResourceTypeMetadata2"
+          },
+          "Language": {
+            "$ref": "#/components/schemas/ResourceContentLanguage"
+          }
+        }
+      },
+      "ResourceTypeMetadata2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "$ref": "#/components/schemas/ResourceType"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "MediaType": {
+            "type": "string"
+          },
+          "LicenseInfo": {
+            "$ref": "#/components/schemas/ResourceLicenseInfo"
+          }
+        }
+      },
+      "ResourceContentLanguage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Code": {
+            "type": "string"
+          },
+          "DisplayName": {
+            "type": "string"
+          },
+          "ScriptDirection": {
+            "$ref": "#/components/schemas/ScriptDirection"
+          }
+        }
+      },
+      "ScriptDirection": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "LTR",
+          "RTL"
+        ],
+        "enum": [
+          "None",
+          "LTR",
+          "RTL"
+        ]
+      },
+      "Request3": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TiptapContentType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "Json",
+          "Html",
+          "Markdown"
+        ],
+        "enum": [
+          "None",
+          "Json",
+          "Html",
+          "Markdown"
+        ]
+      },
+      "Request4": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Request3"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Response5": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ContentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ContentDisplayName": {
+            "type": "string"
+          },
+          "LanguageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "LanguageDisplayName": {
+            "type": "string"
+          },
+          "LanguageEnglishDisplayName": {
+            "type": "string"
+          },
+          "LanguageCode": {
+            "type": "string"
+          }
+        }
+      },
+      "Request5": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response6": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PassageAssociations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassageAssociation"
+            }
+          },
+          "ResourceAssociations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceAssociation"
+            }
+          }
+        }
+      },
+      "PassageAssociation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "StartBookCode": {
+            "type": "string"
+          },
+          "StartChapter": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "StartVerse": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "EndBookCode": {
+            "type": "string"
+          },
+          "EndChapter": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "EndVerse": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ResourceAssociation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ContentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "DisplayName": {
+            "type": "string"
+          },
+          "ReferenceId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Request6": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response7": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Code": {
+            "type": "string"
+          },
+          "DisplayName": {
+            "type": "string"
+          },
+          "ShortName": {
+            "type": "string"
+          },
+          "ResourceType": {
+            "$ref": "#/components/schemas/ResourceType"
+          },
+          "SliCategory": {
+            "type": "string",
+            "nullable": true
+          },
+          "SliLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "Request7": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response8": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Code": {
+            "type": "string"
+          },
+          "DisplayName": {
+            "type": "string"
+          },
+          "ShortName": {
+            "type": "string"
+          },
+          "ResourceType": {
+            "$ref": "#/components/schemas/ResourceType"
+          },
+          "SliCategory": {
+            "type": "string",
+            "nullable": true
+          },
+          "SliLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "LicenseInfo": {
+            "$ref": "#/components/schemas/ResourceLicenseInfo"
+          },
+          "AvailableLanguages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvailableLanguageResponse"
+            }
+          }
+        }
+      },
+      "AvailableLanguageResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "LanguageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "LanguageCode": {
+            "type": "string"
+          },
+          "DisplayName": {
+            "type": "string"
+          },
+          "ResourceItemCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Request8": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response9": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Code": {
+            "type": "string"
+          },
+          "EnglishDisplay": {
+            "type": "string"
+          },
+          "LocalizedDisplay": {
+            "type": "string"
+          },
+          "ScriptDirection": {
+            "type": "string"
+          }
+        }
+      },
+      "Response10": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "LanguageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "LanguageCode": {
+            "type": "string"
+          },
+          "ResourceCounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceCountByType"
+            }
+          }
+        }
+      },
+      "ResourceCountByType": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string"
+          },
+          "Count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Request9": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response11": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "BibleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "BibleName": {
+            "type": "string"
+          },
+          "BibleAbbreviation": {
+            "type": "string"
+          },
+          "BookName": {
+            "type": "string"
+          },
+          "BookCode": {
+            "type": "string"
+          },
+          "Chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseChapter"
+            }
+          }
+        }
+      },
+      "ResponseChapter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Audio": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResponseChapterAudio"
+              }
+            ]
+          },
+          "Verses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseChapterVerse"
+            }
+          }
+        }
+      },
+      "ResponseChapterAudio": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Webm": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResponseAudioFile"
+              }
+            ]
+          },
+          "Mp3": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResponseAudioFile"
+              }
+            ]
+          }
+        }
+      },
+      "ResponseAudioFile": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Url": {
+            "type": "string"
+          },
+          "Size": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ResponseChapterVerse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Text": {
+            "type": "string"
+          },
+          "AudioTimestamp": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResponseChapterVerseAudioTimestamp"
+              }
+            ]
+          }
+        }
+      },
+      "ResponseChapterVerseAudioTimestamp": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Start": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "End": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "Request10": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response12": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Abbreviation": {
+            "type": "string"
+          },
+          "LanguageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IsLanguageDefault": {
+            "type": "boolean"
+          },
+          "HasAudio": {
+            "type": "boolean"
+          },
+          "HasGreekAlignment": {
+            "type": "boolean"
+          },
+          "LicenseInfo": {
+            "$ref": "#/components/schemas/BibleLicenseInfo"
+          }
+        }
+      },
+      "BibleLicenseInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Title": {
+            "type": "string"
+          },
+          "Copyright": {
+            "$ref": "#/components/schemas/BibleLicenseInfo_LicenseCopyright"
+          },
+          "Licenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BibleLicenseInfo_LicenseDetails"
+            }
+          }
+        }
+      },
+      "BibleLicenseInfo_LicenseCopyright": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Dates": {
+            "type": "string",
+            "nullable": true
+          },
+          "Holder": {
+            "$ref": "#/components/schemas/BibleLicenseInfo_LicenseCopyrightHolder"
+          }
+        }
+      },
+      "BibleLicenseInfo_LicenseCopyrightHolder": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BibleLicenseInfo_LicenseDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Eng": {
+            "$ref": "#/components/schemas/BibleLicenseInfo_LicenseData"
+          }
+        }
+      },
+      "BibleLicenseInfo_LicenseData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Url": {
+            "type": "string"
+          }
+        }
+      },
+      "Request11": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response13": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Code": {
+            "type": "string"
+          }
+        }
+      },
+      "Response14": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "BibleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "BibleName": {
+            "type": "string"
+          },
+          "BibleAbbreviation": {
+            "type": "string"
+          },
+          "GreekBibleAbbreviation": {
+            "type": "string"
+          },
+          "BookName": {
+            "type": "string"
+          },
+          "BookCode": {
+            "type": "string"
+          },
+          "Chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseChapter2"
+            }
+          }
+        }
+      },
+      "ResponseChapter2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Verses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseChapterVerse2"
+            }
+          }
+        }
+      },
+      "ResponseChapterVerse2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseWordWithGreekAlignment"
+            }
+          }
+        }
+      },
+      "ResponseWordWithGreekAlignment": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Word": {
+            "type": "string"
+          },
+          "NextWordIsInGroup": {
+            "type": "boolean"
+          },
+          "GreekWords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseGreekWord"
+            }
+          }
+        }
+      },
+      "ResponseGreekWord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Word": {
+            "type": "string"
+          },
+          "GrammarType": {
+            "type": "string"
+          },
+          "UsageCode": {
+            "type": "string"
+          },
+          "Lemma": {
+            "type": "string"
+          },
+          "StrongsNumber": {
+            "type": "string"
+          },
+          "Senses": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ResponseGreekSense"
+            }
+          }
+        }
+      },
+      "ResponseGreekSense": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Glosses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "Definition": {
+            "type": "string"
+          }
+        }
+      },
+      "Request12": {
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "name": "api-key",
+        "in": "header"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Resources",
+      "description": "These endpoints allow searching for resources and pulling down the associated content for each one.\nAn individual resource is the individual content of a resource, such as a specific study note within\na collection of associated study notes. A collection of resources is a group of individual resources belonging\nto the same collection. A resource type is the category to which a collection of resources can belong.\n\nAs an example, for the Tyndale Bible Dictionary article for \"Aaron\", the resource is \"Aaron\", the\ntitle of the collection to which it belongs is \"Bible Dictionary (Tyndale)\", and the resource type\nis \"Dictionary\"."
+    },
+    {
+      "name": "Resources/Collections",
+      "description": "Endpoints for retrieving collections of resources."
+    },
+    {
+      "name": "Resources/Types",
+      "description": "Endpoints for retrieving the different types of resource collections and resources."
+    },
+    {
+      "name": "Languages",
+      "description": "Endpoints for pulling data specific to languages."
+    },
+    {
+      "name": "Bibles",
+      "description": "Endpoints for discovering available Bibles and pulling down Bible text and audio information."
+    },
+    {
+      "name": "Clients",
+      "description": "Endpoints for downloading generated client source code for calling this API."
+    }
+  ]
+}
