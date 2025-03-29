@@ -168,11 +168,16 @@ def process_resource(resource_id, book_name):
     # Extract quote from first paragraph
     quote = ""
     if content_blocks[0].get("type") == "paragraph" and "content" in content_blocks[0]:
+        quote_parts = []
         for text_item in content_blocks[0].get("content", []):
             if text_item.get("type") == "text":
                 quote_text = text_item.get("text", "")
                 # Strip off double quotes if they exist
-                quote = quote_text.strip('"')
+                quote_text = quote_text.strip('"')
+                if quote_text == " - ":
+                    quote_text = " & "
+                quote_parts.append(quote_text)
+        quote = " ".join(quote_parts)
     
     # Extract support reference from last paragraph if it has a resource reference
     support_reference = ""
@@ -189,7 +194,7 @@ def process_resource(resource_id, book_name):
     
     # Create TSV line
     # Reference, ID, Tags, SupportReference, Quote, Occurrence, Note
-    tsv_line = f"{reference}\t{unique_id}\t\t{support_reference}\t{quote}\t1\t{note}"
+    tsv_line = f"{reference}\t{unique_id}\t{resource_id}\t{support_reference}\t{quote}\t1\t{note}"
 
     print(tsv_line)
     
